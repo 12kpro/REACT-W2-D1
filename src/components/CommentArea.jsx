@@ -1,5 +1,6 @@
 import { Component } from "react";
 import { Form, Button, ListGroup, Spinner } from "react-bootstrap";
+import AddComment from "./AddComment";
 const BASE_URL = "https://striveschool-api.herokuapp.com/api/comments/";
 const headers = {
   Authorization:
@@ -21,6 +22,28 @@ export default class CommentArea extends Component {
   fetchComments = async () => {
     try {
       const response = await fetch(`${BASE_URL}${this.props.asin}`, { headers: headers });
+      if (response.ok) {
+        const data = await response.json();
+        this.setState({ comments: data });
+      } else {
+        this.setState({ error: true });
+      }
+    } catch (error) {
+      this.setState({ error: true, errorMsg: error.message });
+    } finally {
+      this.setState({ isLoading: false });
+    }
+  };
+  handleDelete = async () => {
+    try {
+      const response = await fetch(`${BASE_URL}${this.props.asin}`, {
+        method: "DELETE",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: headers.Authorization
+        }
+      });
+
       if (response.ok) {
         const data = await response.json();
         this.setState({ comments: data });
@@ -98,37 +121,7 @@ export default class CommentArea extends Component {
             </ListGroup.Item>
           ))}
         </ListGroup>
-        <Form onSubmit={this.handleSubmit}>
-          <Form.Group className="mb-3" controlId="commentForm.rate">
-            <Form.Label>Rate</Form.Label>
-            <Form.Select
-              aria-label="Default select example"
-              value="1"
-              onChange={(e) => {
-                this.handleChange("rate", e.target.value);
-              }}
-            >
-              <option>1</option>
-              <option>2</option>
-              <option>3</option>
-              <option>4</option>
-              <option>5</option>
-            </Form.Select>
-          </Form.Group>
-          <Form.Group className="mb-3" controlId="commentForm.Comment">
-            <Form.Label>Comment</Form.Label>
-            <Form.Control
-              as="textarea"
-              rows={3}
-              onChange={(e) => {
-                this.handleChange("comment", e.target.value);
-              }}
-            />
-          </Form.Group>
-          <Button variant="primary" type="submit">
-            Submit
-          </Button>
-        </Form>
+        <AddComment asin={this.props.asin} />
       </>
     );
   }
