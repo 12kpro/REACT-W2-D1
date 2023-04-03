@@ -1,6 +1,7 @@
 import { Component } from "react";
 import { Form, Button, ListGroup, Spinner } from "react-bootstrap";
 import AddComment from "./AddComment";
+import CommentList from "./CommentsList";
 const BASE_URL = "https://striveschool-api.herokuapp.com/api/comments/";
 const headers = {
   Authorization:
@@ -96,31 +97,13 @@ export default class CommentArea extends Component {
     }
   };
   componentDidMount = () => {
-    this.handleChange("elementId", this.props.asin);
-    this.fetchComments();
+    //this.handleChange("elementId", this.props.asin);
+    //this.fetchComments();
   };
   render() {
     return (
       <>
-        <ListGroup variant="flush">
-          {this.state.isLoading && !this.state.error && (
-            <Spinner animation="border" role="status">
-              <span className="visually-hidden">Loading...</span>
-            </Spinner>
-          )}
-          {this.state.comments.length === 0 && !this.state.error && !this.state.isLoading && (
-            <ListGroup.Item>No comments Found</ListGroup.Item>
-          )}
-          {this.state.error && !this.state.isLoading && <ListGroup.Item>{this.state.errorMsg}</ListGroup.Item>}
-          {this.state.comments.map((comment) => (
-            <ListGroup.Item>
-              {comment.comment}{" "}
-              <Button variant="danger" onClick={() => {}}>
-                delete
-              </Button>
-            </ListGroup.Item>
-          ))}
-        </ListGroup>
+        <CommentList asin={this.props.asin} />
         <AddComment asin={this.props.asin} />
       </>
     );
