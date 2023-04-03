@@ -1,6 +1,7 @@
 import { Component } from "react";
-import { Button, ListGroup, Spinner } from "react-bootstrap";
-import AddComment from "./AddComment";
+import { ListGroup, Spinner } from "react-bootstrap";
+
+import SingleComment from "./SingleComment";
 const BASE_URL = "https://striveschool-api.herokuapp.com/api/comments/";
 const headers = {
   Authorization:
@@ -16,12 +17,36 @@ export default class CommentList extends Component {
   componentDidMount = () => {
     this.fetchComments();
   };
+
   fetchComments = async () => {
     try {
       const response = await fetch(`${BASE_URL}${this.props.asin}`, { headers: headers });
       if (response.ok) {
         const data = await response.json();
         this.setState({ comments: data });
+      } else {
+        this.setState({ error: true });
+      }
+    } catch (error) {
+      this.setState({ error: true, errorMsg: error.message });
+    } finally {
+      this.setState({ isLoading: false });
+    }
+  };
+  handleDelete = async (id) => {
+    try {
+      const response = await fetch(`${BASE_URL}${id}`, {
+        method: "DELETE",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: headers.Authorization
+        }
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        const newCommentList = this.state.comments.filter((item) => item._id !== data._id);
+        this.setState({ comments: newCommentList });
       } else {
         this.setState({ error: true });
       }
@@ -45,12 +70,12 @@ export default class CommentList extends Component {
           )}
           {this.state.error && !this.state.isLoading && <ListGroup.Item>{this.state.errorMsg}</ListGroup.Item>}
           {this.state.comments.map((comment) => (
-            <ListGroup.Item key={comment._id}>
-              {comment.comment}
-              <Button variant="danger" onClick={() => {}}>
-                delete
-              </Button>
-            </ListGroup.Item>
+            <SingleComment
+              key={comment._id}
+              txt={comment.comment}
+              id={comment._id}
+              deleteSelected={this.handleDelete}
+            />
           ))}
         </ListGroup>
       </>

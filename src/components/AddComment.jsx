@@ -73,7 +73,7 @@ export default class AddComment extends Component {
             <Form.Label>Rate</Form.Label>
             <Form.Select
               aria-label="Default select example"
-              value="1"
+              value={this.state.newComment.rate}
               onChange={(e) => {
                 this.handleChange("rate", e.target.value);
               }}
